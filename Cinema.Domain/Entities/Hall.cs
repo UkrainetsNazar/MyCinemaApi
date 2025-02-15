@@ -8,9 +8,9 @@ namespace Cinema.Domain.Entities
 {
     public class Hall
     {
-        int Id { get; set; }
-        int NumberOfHall { get; set; }
-        List<Session>? Sessions { get; set; }
-        List<Row>? Rows { get; set; }
+        public int Id { get; set; }
+        public int NumberOfHall { get; set; }
+        public List<Session>? Sessions { get; set; }
+        public List<Row>? Rows { get; set; }
     }
 }

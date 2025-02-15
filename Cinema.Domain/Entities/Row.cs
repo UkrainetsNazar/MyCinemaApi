@@ -8,11 +8,11 @@ namespace Cinema.Domain.Entities
 {
     public class Row
     {
-        int Id { get; set; }
-        int RowNumber { get; set; }
-        int SeatCount { get; set; }
-        int HallId { get; set; }
-        Hall? Hall { get; set; }
-        List<Seat>? Seats { get; set; }
+        public int Id { get; set; }
+        public int RowNumber { get; set; }
+        public int SeatCount { get; set; }
+        public int HallId { get; set; }
+        public Hall? Hall { get; set; }
+        public List<Seat>? Seats { get; set; }
     }
 }

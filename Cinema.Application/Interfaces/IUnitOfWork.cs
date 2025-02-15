@@ -1,0 +1,13 @@
+﻿namespace Cinema.Application.Interfaces
+{
+    public interface IUnitOfWork : IDisposable
+    {
+        IMovieRepository Movies { get; }
+        ISessionRepository Sessions { get; }
+        IUserRepository Users { get; }
+        IHallRepository Halls { get; }
+        ITicketRepository Tickets { get; }
+
+        Task SaveChangesAsync();
+    }
+}

@@ -8,12 +8,12 @@ namespace Cinema.Domain.Entities
 {
     public class Seat
     {
-        int Id { get; set; }
-        int RowId { get; set; }
-        Row? Row { get; set; }
-        int SeatNumber { get; set; }
-        bool IsBooked { get; set; }
-        int TicketId { get; set; }
-        Ticket? Ticket { get; set; }
+        public int Id { get; set; }
+        public int RowId { get; set; }
+        public Row? Row { get; set; }
+        public int SeatNumber { get; set; }
+        public bool IsBooked { get; set; }
+        public int TicketId { get; set; }
+        public Ticket? Ticket { get; set; }
     }
 }

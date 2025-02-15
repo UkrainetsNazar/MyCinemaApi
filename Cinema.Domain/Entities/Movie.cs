@@ -9,15 +9,15 @@ namespace Cinema.Domain.Entities
 {
     public class Movie
     {
-        int Id { get; set; }
-        string? MovieTitle { get; set; }
-        string? Description { get; set; }
-        int DurationMinutes { get; set; }
-        string? Genre { get; set; }
-        string? PosterUrl { get; set; }
-        string? TrailerUrl { get; set; }
-        DateTime ReleaseDate { get; set; }
-        double Rating { get; set; }
-        List<Session>? Sessions { get; set; }
+        public int Id { get; set; }
+        public string? MovieTitle { get; set; }
+        public string? Description { get; set; }
+        public int DurationMinutes { get; set; }
+        public string? Genre { get; set; }
+        public string? PosterUrl { get; set; }
+        public string? TrailerUrl { get; set; }
+        public DateTime ReleaseDate { get; set; }
+        public double Rating { get; set; }
+        public List<Session>? Sessions { get; set; }
     }
 }

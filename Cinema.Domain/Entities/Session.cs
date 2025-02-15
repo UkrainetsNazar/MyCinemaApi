@@ -9,13 +9,13 @@ namespace Cinema.Domain.Entities
 {
     public class Session
     {
-        int Id { get; set; }
-        DateTime StartTime { get; set; }
-        int MovieId { get; set; }
-        Movie? Movie { get; set; }
-        int HallId { get; set; }
-        Hall? Hall { get; set; }
-        List<Ticket>? Tickets { get; set; }
-        double Price { get; set; }
+        public int Id { get; set; }
+        public DateTime StartTime { get; set; }
+        public int MovieId { get; set; }
+        public Movie? Movie { get; set; }
+        public int HallId { get; set; }
+        public Hall? Hall { get; set; }
+        public List<Ticket>? Tickets { get; set; }
+        public double Price { get; set; }
     }
 }

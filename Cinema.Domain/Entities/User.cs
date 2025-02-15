@@ -9,10 +9,10 @@ namespace Cinema.Domain.Entities
 {
     public class User
     {
-        int Id { get; set; }
-        string? UserName { get; set; }
-        string? Email { get; set; }
-        string? Password { get; set; }
-        List<Ticket>? Tickets { get; set; }
+        public int Id { get; set; }
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+        public List<Ticket>? Tickets { get; set; }
     }
 }
