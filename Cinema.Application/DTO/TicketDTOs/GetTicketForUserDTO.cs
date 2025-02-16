@@ -4,17 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinema.Domain.Entities
+namespace Cinema.Application.DTO.TicketDTOs
 {
-    public class Ticket
+    public class GetTicketForUserDTO
     {
         public int Id { get; set; }
         public int SessionId { get; set; }
-        public Session? Session { get; set; }
-        public int UserId { get; set; }
-        public User? User { get; set; }
-        public int SeatId { get; set; }
-        public Seat? Seat { get; set; }
+        public string? MovieTitle { get; set; }
+        public DateTime SessionStartTime { get; set; }
+        public int SeatNumber { get; set; }
         public int HallNumber { get; set; }
         public int RowNumber { get; set; }
     }

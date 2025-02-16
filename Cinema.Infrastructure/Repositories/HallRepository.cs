@@ -63,5 +63,13 @@ namespace Cinema.Infrastructure.Repositories
                 throw new Exception("Hall not found");
             }
         }
+        public async Task<Hall?> GetByNumberAsync(int hallNumber)
+        {
+            return await _context.Halls
+                .Include(h => h.Rows!)
+                .ThenInclude(r => r.Seats)
+                .FirstOrDefaultAsync(h => h.NumberOfHall == hallNumber);
+        }
+
     }
 }

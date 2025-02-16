@@ -8,9 +8,11 @@ namespace Cinema.Application.DTO.SessionDTOs
 {
     public class CreateSessionDTO
     {
-        public DateTime StartTime { get; set; }
         public int MovieId { get; set; }
-        public int HallId { get; set; }
+        public DateTime StartTime { get; set; }
         public double Price { get; set; }
+        public int NumberOfHall { get; set; }
+        public int RowCount { get; set; }
+        public int SeatsPerRow { get; set; }
     }
 }

@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="UseCases\SessionUseCases\" />
-    <Folder Include="UseCases\HallUseCases\" />
-    <Folder Include="UseCases\TicketUseCases\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

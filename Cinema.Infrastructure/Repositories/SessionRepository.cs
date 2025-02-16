@@ -59,5 +59,28 @@ namespace Cinema.Infrastructure.Repositories
                 throw new Exception("Session not found");
             }
         }
+
+        public async Task<List<Session>> GetByMovieIdAsync(int movieId)
+        {
+            return await _context.Sessions
+                .Where(s => s.MovieId == movieId)
+                .ToListAsync();
+        }
+
+        public async Task<Session?> GetByIdWithHallAndSeatsAsync(int sessionId)
+        {
+            return await _context.Sessions
+                .Include(s => s.Hall!)
+                .ThenInclude(h => h.Rows!)
+                .ThenInclude(r => r.Seats)
+                .FirstOrDefaultAsync(s => s.Id == sessionId);
+        }
+        public async Task<bool> IsHallAvailableAsync(int hallId, DateTime startTime, DateTime endTime)
+        {
+            return !await _context.Sessions
+                .AnyAsync(s => s.HallId == hallId &&
+                               (startTime < s.StartTime.AddMinutes(s.Movie!.DurationMinutes) &&
+                                endTime > s.StartTime));
+        }
     }
 }

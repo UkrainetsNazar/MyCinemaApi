@@ -9,5 +9,6 @@ namespace Cinema.Application.Interfaces
         Task AddHallAsync(Hall hall);
         Task UpdateHallAsync(int id, Hall hall);
         Task DeleteHallAsync(int id);
+        Task<Hall?> GetByNumberAsync(int hallNumber);
     }
 }

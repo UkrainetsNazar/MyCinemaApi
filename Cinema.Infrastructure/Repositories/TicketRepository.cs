@@ -63,5 +63,16 @@ namespace Cinema.Infrastructure.Repositories
                 throw new Exception("Ticket not found");
             }
         }
+        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(int userId)
+        {
+            return await _context.Tickets
+                .Include(t => t.Session)
+                .ThenInclude(s => s.Movie)
+                .Include(t => t.Seat)
+                .ThenInclude(s => s.Row)
+                .Include(t => t.Session!.Hall)
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+        }
     }
 }

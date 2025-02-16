@@ -8,9 +8,9 @@ namespace Cinema.Application.DTO.SeatDTOs
 {
     public class GetSeatDTO
     {
-        public int Id { get; set; }
-        public int RowId { get; set; }
-        public int SeatNumber { get; set; }
+        public int? Id { get; set; }
+        public int? RowNumber { get; set; }
+        public int? SeatNumber { get; set; }
         public bool IsBooked { get; set; }
     }
 }

@@ -14,5 +14,26 @@ namespace Cinema.Infrastructure.Persistence
         public DbSet<Seat> Seats { get; set; }
         public DbSet<User> Users { get; set; }
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var currentTime = DateTime.Now;
+
+            var sessions = await Sessions.ToListAsync(cancellationToken);
+
+            var expiredSessions = sessions.Where(s =>
+            {
+                var movie = s.Movie;
+                if (movie == null)
+                    return false; 
+
+                var endTime = s.StartTime.AddMinutes(movie.DurationMinutes);
+                return endTime < currentTime;
+            }).ToList();
+
+            Sessions.RemoveRange(expiredSessions);
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
     }
 }
