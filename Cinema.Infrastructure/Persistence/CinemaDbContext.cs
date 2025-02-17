@@ -35,5 +35,48 @@ namespace Cinema.Infrastructure.Persistence
             return await base.SaveChangesAsync(cancellationToken);
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Movie>()
+                .HasIndex(m => m.MovieTitle)
+                .IsUnique();
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Movie)
+                .WithMany(m => m.Sessions)
+                .HasForeignKey(s => s.MovieId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.Hall)
+                .WithMany(h => h.Sessions)
+                .HasForeignKey(s => s.HallId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Session)
+                .WithMany(s => s.Tickets)
+                .HasForeignKey(t => t.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.Tickets)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Hall>()
+                .HasIndex(h => h.NumberOfHall)
+                .IsUnique();
+            modelBuilder.Entity<Row>()
+                .HasOne(r => r.Hall)
+                .WithMany(h => h.Rows)
+                .HasForeignKey(r => r.HallId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.Row)
+                .WithMany(r => r.Seats)
+                .HasForeignKey(s => s.RowId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

@@ -8,6 +8,6 @@ namespace Cinema.Application.DTO.SessionDTOs
         public DateTime StartTime { get; set; }
         public double Price { get; set; }
         public int HallNumber { get; set; }
-        public List<GetSeatDTO> Seats { get; set; }
+        public List<GetSeatDTO>? Seats { get; set; }
     }
 }
