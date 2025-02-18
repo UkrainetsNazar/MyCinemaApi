@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Cinema.Application.DTO.TicketDTOs;
-using Cinema.Application.Interfaces;
+﻿using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
 
 namespace Cinema.Application.UseCases.TicketUseCases
@@ -8,49 +6,50 @@ namespace Cinema.Application.UseCases.TicketUseCases
     public class BookTicketHandler
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public BookTicketHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookTicketHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
-        public async Task HandleAsync(CreateTicketDTO ticketDTO)
+        public async Task<Ticket> HandleAsync(int sessionId, int seatId, int userId, double price)
         {
-            var session = await _unitOfWork.Sessions.GetByIdWithHallAndSeatsAsync(ticketDTO.SessionId);
+            var session = await _unitOfWork.Sessions.GetSessionByIdAsync(sessionId);
             if (session == null)
-                throw new Exception("Сеанс не знайдено.");
+            {
+                throw new Exception($"Session with id {sessionId} not found.");
+            }
 
-            var seat = session.Hall!.Rows!
-                .SelectMany(r => r!.Seats!)
-                .FirstOrDefault(s => s.Id == ticketDTO.SeatId);
-
+            var seat = await _unitOfWork.Seats.GetSeatByIdAsync(seatId);
             if (seat == null)
-                throw new Exception("Місце не знайдено.");
+            {
+                throw new Exception($"Seat with id {seatId} not found.");
+            }
 
             if (seat.IsBooked)
-                throw new Exception("Це місце вже заброньоване.");
-
-            var hallNumber = session.Hall.NumberOfHall;
-            var rowNumber = seat!.Row!.RowNumber;
+            {
+                throw new Exception($"Seat with id {seatId} is already booked.");
+            }
 
             var ticket = new Ticket
             {
-                UserId = ticketDTO.UserId,
-                SessionId = ticketDTO.SessionId,
-                SeatId = ticketDTO.SeatId,
-                Seat = seat,
-                Session = session,
-                User = await _unitOfWork.Users.GetUserByIdAsync(ticketDTO.UserId),
-                HallNumber = hallNumber,
-                RowNumber = rowNumber
+                SessionId = sessionId,
+                UserId = userId,
+                SeatId = seatId,
+                HallNumber = session.Hall!.NumberOfHall,
+                RowNumber = seat.Row!.RowNumber,
+                SeatNumber = seat.SeatNumber,
+                Price = price,
+                SessionTime = session.StartTime
             };
 
             seat.IsBooked = true;
 
             await _unitOfWork.Tickets.AddTicketAsync(ticket);
+            await _unitOfWork.Seats.UpdateSeatAsync(seatId, seat);
             await _unitOfWork.SaveChangesAsync();
+
+            return ticket;
         }
     }
 }

@@ -14,10 +14,17 @@ namespace Cinema.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Movie, GetMovieDTO>().ReverseMap();
+            CreateMap<Movie, GetMovieDTO>()
+            .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.MovieTitle))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.DurationMinutes, opt => opt.MapFrom(src => src.DurationMinutes))
+            .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Genre))
+            .ForMember(dest => dest.PosterUrl, opt => opt.MapFrom(src => src.PosterUrl))
+            .ForMember(dest => dest.TrailerUrl, opt => opt.MapFrom(src => src.TrailerUrl))
+            .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(src => src.ReleaseDate))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating));
             CreateMap<Movie, CreateMovieDTO>().ReverseMap();
             CreateMap<Movie, UpdateMovieDTO>().ReverseMap();
-            CreateMap<Movie, MovieSessionDTO>().ReverseMap();
 
             CreateMap<Hall, GetHallDTO>().ReverseMap();
             CreateMap<Hall, CreateHallDTO>().ReverseMap();
@@ -28,7 +35,13 @@ namespace Cinema.Application.Mapping
             CreateMap<Seat, GetSeatDTO>().ReverseMap();
             CreateMap<Seat, CreateSeatDTO>().ReverseMap();
 
-            CreateMap<Session, GetSessionDTO>().ReverseMap();
+            
+            CreateMap<Session, GetSessionDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.MovieId))
+                .ForMember(dest => dest.HallId, opt => opt.MapFrom(src => src.HallId))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
             CreateMap<Session, CreateSessionDTO>().ReverseMap();
             CreateMap<Session, UpdateSessionDTO>().ReverseMap();
             CreateMap<Session, SessionDetailsDTO>().ReverseMap();

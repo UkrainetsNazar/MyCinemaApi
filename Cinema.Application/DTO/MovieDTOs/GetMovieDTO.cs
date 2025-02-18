@@ -8,7 +8,6 @@ namespace Cinema.Application.DTO.MovieDTOs
 {
     public class GetMovieDTO
     {
-        public int Id { get; set; }
         public string MovieTitle { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int DurationMinutes { get; set; }

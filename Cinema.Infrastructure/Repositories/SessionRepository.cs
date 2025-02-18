@@ -32,6 +32,8 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
+
+
         public async Task DeleteSessionAsync(int id)
         {
             try
@@ -123,24 +125,6 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-        public async Task<List<Session>> GetByMovieIdAsync(int movieId)
-        {
-            try
-            {
-                _logger.LogInformation("Fetching sessions for movieId {MovieId}", movieId);
-                var sessions = await _context.Sessions
-                    .Where(s => s.MovieId == movieId)
-                    .ToListAsync();
-                _logger.LogInformation("Fetched {SessionCount} sessions for movieId {MovieId}", sessions.Count, movieId);
-                return sessions;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching sessions for movieId {MovieId}", movieId);
-                throw;
-            }
-        }
-
         public async Task<Session?> GetByIdWithHallAndSeatsAsync(int sessionId)
         {
             try
@@ -188,6 +172,13 @@ namespace Cinema.Infrastructure.Repositories
                 _logger.LogError(ex, "Error checking availability for hallId {HallId}", hallId);
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<Session>> GetSessionsByMovieAndDateAsync(int movieId, DateTime date)
+        {
+            return await _context.Sessions
+                .Where(s => s.MovieId == movieId && s.StartTime.Date == date.Date)
+                .ToListAsync();
         }
     }
 }

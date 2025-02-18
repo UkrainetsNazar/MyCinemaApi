@@ -15,5 +15,7 @@ namespace Cinema.Application.DTO.MovieDTOs
         public string PosterUrl { get; set; } = string.Empty;
         public string TrailerUrl { get; set; } = string.Empty;
         public DateTime ReleaseDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
 }

@@ -72,12 +72,22 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
+        public async Task<IEnumerable<Movie>> GetMoviesByDateAsync(DateTime date)
+        {
+            return await _context.Movies
+                .Where(ms => ms.StartDate <= date && ms.EndDate >= date)
+                .Distinct()
+                .ToListAsync();
+        }
+
+
         public async Task<Movie> GetMovieByIdAsync(int id)
         {
             try
             {
                 _logger.LogInformation("Fetching movie with id {MovieId}", id);
                 var movie = await _context.Movies.FindAsync(id);
+
                 if (movie != null)
                 {
                     _logger.LogInformation("Movie with id {MovieId} found", id);
@@ -96,6 +106,7 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
+
         public async Task UpdateMovieAsync(int id, Movie movie)
         {
             try
@@ -112,6 +123,8 @@ namespace Cinema.Infrastructure.Repositories
                     existingMovie.TrailerUrl = movie.TrailerUrl;
                     existingMovie.ReleaseDate = movie.ReleaseDate;
                     existingMovie.Rating = movie.Rating;
+                    existingMovie.StartDate = movie.StartDate;
+                    existingMovie.EndDate = movie.EndDate;
 
                     _logger.LogInformation("Movie with id {MovieId} updated successfully", id);
                 }

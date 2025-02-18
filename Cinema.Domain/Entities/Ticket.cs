@@ -17,5 +17,8 @@ namespace Cinema.Domain.Entities
         public Seat? Seat { get; set; }
         public int HallNumber { get; set; }
         public int RowNumber { get; set; }
+        public int SeatNumber { get; set; }
+        public double Price { get; set; }
+        public DateTime SessionTime { get; set; }
     }
 }

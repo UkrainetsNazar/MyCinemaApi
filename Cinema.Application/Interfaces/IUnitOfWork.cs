@@ -7,6 +7,7 @@
         IUserRepository Users { get; }
         IHallRepository Halls { get; }
         ITicketRepository Tickets { get; }
+        ISeatRepository Seats { get; }
 
         Task SaveChangesAsync();
     }
