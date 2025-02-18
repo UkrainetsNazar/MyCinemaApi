@@ -10,5 +10,8 @@
         ISeatRepository Seats { get; }
 
         Task SaveChangesAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

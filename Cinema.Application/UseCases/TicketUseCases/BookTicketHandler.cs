@@ -45,11 +45,27 @@ namespace Cinema.Application.UseCases.TicketUseCases
 
             seat.IsBooked = true;
 
-            await _unitOfWork.Tickets.AddTicketAsync(ticket);
-            await _unitOfWork.Seats.UpdateSeatAsync(seatId, seat);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            
+            try
+            {
+                await _unitOfWork.Tickets.AddTicketAsync(ticket);
 
-            return ticket;
+                await _unitOfWork.Seats.UpdateSeatAsync(seatId, seat);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitTransactionAsync();
+
+                return ticket;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw new Exception("An error occurred while processing the ticket purchase.", ex);
+            }
         }
+
+
     }
 }

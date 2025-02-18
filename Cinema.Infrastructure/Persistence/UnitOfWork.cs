@@ -1,10 +1,12 @@
 ﻿using Cinema.Application.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Cinema.Infrastructure.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly CinemaDbContext _context;
+        private IDbContextTransaction _transaction;
         public IUserRepository Users { get; }
         public IHallRepository Halls { get; }
         public IMovieRepository Movies { get; }
@@ -20,6 +22,29 @@ namespace Cinema.Infrastructure.Persistence
             Halls = hallRepository;
             Tickets = ticketRepository;
             Users = userRepository;
+        }
+
+        public async Task BeginTransactionAsync()
+        {
+            _transaction = await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+                _transaction.Dispose();
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                _transaction.Dispose();
+            }
         }
 
         public async Task SaveChangesAsync()
