@@ -2,7 +2,8 @@
 {
     public interface IRedisCacheService
     {
-        public T? Data<T>(string key);
-        public void SetData<T>(string key, T data);
+        T? Data<T>(string key);
+        void SetData<T>(string key, T data, int durationTime);
+        Task ClearDataByPatternAsync(string pattern);
     }
 }

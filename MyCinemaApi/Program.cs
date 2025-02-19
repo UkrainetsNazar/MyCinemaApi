@@ -14,7 +14,7 @@ using Cinema.Application.UseCases.HallUseCases;
 using Cinema.Application.UseCases.SessionUseCases;
 using Cinema.Application.UseCases.TicketUseCases;
 using Cinema.Infrastructure.ExternalServices;
-
+using StackExchange.Redis;
 
 namespace MyCinemaApi;
 
@@ -34,7 +34,6 @@ public class Program
                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
             });
 
-
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.Console()
@@ -50,6 +49,12 @@ public class Program
         {
             options.Configuration = "localhost:6379";
             options.InstanceName = "SampleInstance";
+        });
+
+        builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
+        {
+            var configuration = ConfigurationOptions.Parse("localhost:6379");
+            return ConnectionMultiplexer.Connect(configuration);
         });
 
         builder.Services.AddScoped<IMovieRepository, MovieRepository>();
@@ -74,7 +79,6 @@ public class Program
         builder.Services.AddScoped<MovieRatingHandler>();
         builder.Services.AddScoped<BuyTicketHandler>();
         builder.Services.AddScoped<GetUserTicketsHandler>();
-
 
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddFluentValidationClientsideAdapters();
