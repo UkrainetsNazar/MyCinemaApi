@@ -1,9 +1,12 @@
-﻿namespace Cinema.Domain.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace Cinema.Domain.Entities
 {
     public class Seat
     {
         public int Id { get; set; }
         public int RowId { get; set; }
+        [JsonIgnore]
         public Row? Row { get; set; }
         public int SeatNumber { get; set; }
         public bool IsBooked { get; set; }

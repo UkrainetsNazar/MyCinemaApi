@@ -10,7 +10,7 @@ namespace Cinema.Domain.Entities
     {
         public int Id { get; set; }
         public int NumberOfHall { get; set; }
-        public List<Session>? Sessions { get; set; }
-        public List<Row>? Rows { get; set; }
+        public List<Session>? Sessions { get; set; } = new();
+        public List<Row> Rows { get; set; } = new();
     }
 }

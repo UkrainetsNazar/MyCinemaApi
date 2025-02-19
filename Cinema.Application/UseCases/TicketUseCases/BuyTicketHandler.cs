@@ -31,16 +31,23 @@ namespace Cinema.Application.UseCases.TicketUseCases
                 throw new Exception($"Seat with id {seatId} is already booked.");
             }
 
+            var user = await _unitOfWork.Users.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception($"User with id {userId} not found.");
+            }
+
+
             var ticket = new Ticket
             {
                 SessionId = sessionId,
                 UserId = userId,
                 SeatId = seatId,
-                HallNumber = session.Hall!.NumberOfHall,
-                RowNumber = seat.Row!.RowNumber,
-                SeatNumber = seat.SeatNumber,
                 Price = session.Price,
-                SessionTime = session.StartTime
+                SessionTime = session.StartTime,
+                Seat = seat,
+                Session = session,
+                User = user
             };
 
             seat.IsBooked = true;
