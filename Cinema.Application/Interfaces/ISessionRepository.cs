@@ -4,7 +4,7 @@ namespace Cinema.Application.Interfaces
 {
     public interface ISessionRepository
     {
-        Task<IEnumerable<Session>> GetAllSessionsAsync();
+        Task<IEnumerable<Session>> GetAllWithHallAndSeatsAsync();
         Task<Session> GetSessionByIdAsync(int id);
         Task AddSessionAsync(Session session);
         Task UpdateSessionAsync(int id, Session session);

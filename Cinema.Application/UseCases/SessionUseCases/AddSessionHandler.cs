@@ -27,7 +27,8 @@ namespace Cinema.Application.UseCases.SessionUseCases
                 throw new Exception($"Зал №{sessionDTO.NumberOfHall} не знайдено.");
             }
 
-            var isHallAvailable = await _unitOfWork.Sessions.IsHallAvailableAsync(existingHall.Id, sessionDTO.StartTime, sessionDTO.StartTime.AddMinutes(movie.DurationMinutes));
+            var endTime = sessionDTO.StartTime.AddMinutes(movie.DurationMinutes);
+            var isHallAvailable = await _unitOfWork.Sessions.IsHallAvailableAsync(existingHall.Id, sessionDTO.StartTime, endTime);
             if (!isHallAvailable)
             {
                 throw new Exception("Зал вже зайнятий на цей час.");
@@ -35,11 +36,13 @@ namespace Cinema.Application.UseCases.SessionUseCases
 
             var session = _mapper.Map<Session>(sessionDTO);
             session.HallId = existingHall.Id;
-            session.Hall = existingHall;
+            session.MovieId = movie.Id;
             session.Movie = movie;
+            session.Hall = existingHall;
 
             await _unitOfWork.Sessions.AddSessionAsync(session);
             await _unitOfWork.SaveChangesAsync();
         }
+
     }
 }

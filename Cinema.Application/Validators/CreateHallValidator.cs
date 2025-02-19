@@ -7,7 +7,7 @@ namespace Cinema.Application.Validators
     {
         public CreateHallValidator()
         {
-            RuleFor(x => x.NumberOfHall).GreaterThan(0).WithMessage("Hall number must be greater than 0.");
+            RuleFor(x => x.HallNumber).GreaterThan(0).WithMessage("Hall number must be greater than 0.");
         }
     }
 }

@@ -12,6 +12,7 @@
         public DateTime ReleaseDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int RatingCount { get; set; }
         public double Rating { get; set; }
         public List<Session>? Sessions { get; set; }
     }

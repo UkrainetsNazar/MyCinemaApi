@@ -8,6 +8,8 @@ namespace Cinema.Application.DTO.HallDTOs
 {
     public class CreateHallDTO
     {
-        public int NumberOfHall { get; set; }
+        public int HallNumber { get; set; }
+        public int RowCount { get; set; }
+        public int SeatsPerRow { get; set; }
     }
 }

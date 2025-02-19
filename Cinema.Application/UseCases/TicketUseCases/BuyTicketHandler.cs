@@ -3,16 +3,16 @@ using Cinema.Domain.Entities;
 
 namespace Cinema.Application.UseCases.TicketUseCases
 {
-    public class BookTicketHandler
+    public class BuyTicketHandler
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public BookTicketHandler(IUnitOfWork unitOfWork)
+        public BuyTicketHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Ticket> HandleAsync(int sessionId, int seatId, int userId, double price)
+        public async Task<Ticket> HandleAsync(int sessionId, int seatId, int userId)
         {
             var session = await _unitOfWork.Sessions.GetSessionByIdAsync(sessionId);
             if (session == null)
@@ -39,7 +39,7 @@ namespace Cinema.Application.UseCases.TicketUseCases
                 HallNumber = session.Hall!.NumberOfHall,
                 RowNumber = seat.Row!.RowNumber,
                 SeatNumber = seat.SeatNumber,
-                Price = price,
+                Price = session.Price,
                 SessionTime = session.StartTime
             };
 
@@ -65,7 +65,5 @@ namespace Cinema.Application.UseCases.TicketUseCases
                 throw new Exception("An error occurred while processing the ticket purchase.", ex);
             }
         }
-
-
     }
 }

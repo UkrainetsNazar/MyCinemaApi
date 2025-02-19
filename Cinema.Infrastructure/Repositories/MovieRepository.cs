@@ -122,6 +122,7 @@ namespace Cinema.Infrastructure.Repositories
                     existingMovie.PosterUrl = movie.PosterUrl;
                     existingMovie.TrailerUrl = movie.TrailerUrl;
                     existingMovie.ReleaseDate = movie.ReleaseDate;
+                    existingMovie.RatingCount = movie.RatingCount;
                     existingMovie.Rating = movie.Rating;
                     existingMovie.StartDate = movie.StartDate;
                     existingMovie.EndDate = movie.EndDate;

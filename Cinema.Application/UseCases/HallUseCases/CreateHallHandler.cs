@@ -1,10 +1,5 @@
 ﻿using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cinema.Application.UseCases.HallUseCases
 {
@@ -17,7 +12,7 @@ namespace Cinema.Application.UseCases.HallUseCases
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Hall> CreateHallAsync(int hallNumber, int rowCount, int seatsPerRow)
+        public async Task<Hall> HandleAsync(int hallNumber, int rowCount, int seatsPerRow)
         {
             var existingHall = await _unitOfWork.Halls.GetByNumberAsync(hallNumber);
             if (existingHall != null)

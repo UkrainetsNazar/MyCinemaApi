@@ -80,7 +80,17 @@ namespace Cinema.Infrastructure.Repositories
                     throw new Exception("Seat id is <= 0");
                 }
                 _logger.LogInformation("Fetching seat with id {SeatId}", id);
-                return await _context.Seats.FindAsync(id);
+                var seat = await _context.Seats.FindAsync(id);
+                if (seat != null)
+                {
+                    _logger.LogInformation("Seat with id {SeatId} found", id);
+                    return seat;
+                }
+                else
+                {
+                    _logger.LogWarning("Seat with id {SeatId} not found", id);
+                    throw new Exception($"Seat with id {id} not found");
+                }
             }
             catch (Exception ex)
             {

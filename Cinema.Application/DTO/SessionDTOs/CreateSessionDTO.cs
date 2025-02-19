@@ -12,7 +12,5 @@ namespace Cinema.Application.DTO.SessionDTOs
         public DateTime StartTime { get; set; }
         public double Price { get; set; }
         public int NumberOfHall { get; set; }
-        public int RowCount { get; set; }
-        public int SeatsPerRow { get; set; }
     }
 }

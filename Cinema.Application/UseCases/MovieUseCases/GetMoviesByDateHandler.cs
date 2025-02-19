@@ -4,11 +4,11 @@ using Cinema.Application.Interfaces;
 
 namespace Cinema.Application.UseCases.MovieUseCases
 {
-    public class GetMoviesByDateAsync
+    public class GetMoviesByDateHandler
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public GetMoviesByDateAsync(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetMoviesByDateHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;

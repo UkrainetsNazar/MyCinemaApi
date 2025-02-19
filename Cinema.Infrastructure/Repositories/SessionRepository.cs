@@ -58,13 +58,18 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Session>> GetAllSessionsAsync()
+        public async Task<IEnumerable<Session>> GetAllWithHallAndSeatsAsync()
         {
             try
             {
-                _logger.LogInformation("Fetching all sessions");
-                var sessions = await _context.Sessions.ToListAsync();
-                _logger.LogInformation("Fetched {SessionCount} sessions", sessions.Count);
+                _logger.LogInformation("Fetching all sessions including hall and seats");
+                var sessions = await _context.Sessions
+                    .Include(s => s.Hall!)
+                    .ThenInclude(h => h.Rows!)
+                    .ThenInclude(r => r.Seats)
+                    .ToListAsync();
+
+                _logger.LogInformation("Fetched {Count} sessions", sessions.Count);
                 return sessions;
             }
             catch (Exception ex)
