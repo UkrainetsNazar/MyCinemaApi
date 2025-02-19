@@ -76,6 +76,11 @@ namespace Cinema.Infrastructure.Persistence
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.Ticket)
+                .WithOne(t => t.Seat)
+                .HasForeignKey<Ticket>(t => t.SeatId)
+                .OnDelete(DeleteBehavior.Cascade);
             base.OnModelCreating(modelBuilder);
         }
     }
