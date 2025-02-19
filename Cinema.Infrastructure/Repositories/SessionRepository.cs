@@ -32,8 +32,6 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-
-
         public async Task DeleteSessionAsync(int id)
         {
             try

@@ -125,10 +125,10 @@ namespace Cinema.Infrastructure.Repositories
             {
                 _logger.LogInformation("Fetching tickets for userId {UserId}", userId);
                 var tickets = await _context.Tickets
-                    .Include(t => t.Session)
-                    .ThenInclude(s => s!.Movie)
-                    .Include(t => t.Seat)
-                    .ThenInclude(s => s!.Row)
+                    .Include(t => t.Session!)
+                    .ThenInclude(s => s.Movie)
+                    .Include(t => t.Seat!)
+                    .ThenInclude(s => s.Row)
                     .Include(t => t.Session!.Hall)
                     .Where(t => t.UserId == userId)
                     .ToListAsync();

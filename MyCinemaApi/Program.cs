@@ -13,6 +13,7 @@ using Cinema.Application.UseCases.MovieUseCases;
 using Cinema.Application.UseCases.HallUseCases;
 using Cinema.Application.UseCases.SessionUseCases;
 using Cinema.Application.UseCases.TicketUseCases;
+using Cinema.Infrastructure.ExternalServices;
 
 
 namespace MyCinemaApi;
@@ -23,7 +24,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Реєстрація сервісів
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -35,28 +35,31 @@ public class Program
             });
 
 
-        // Налаштування логування
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.Console()
             .WriteTo.File("logs/errors.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-        // Реєстрація бази даних
         builder.Services.AddDbContext<CinemaDbContext>(options =>
         {
             options.UseInMemoryDatabase("MyInMemoryDb");
         });
 
-        // Реєстрація репозиторіїв
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = "localhost:6379";
+            options.InstanceName = "SampleInstance";
+        });
+
         builder.Services.AddScoped<IMovieRepository, MovieRepository>();
         builder.Services.AddScoped<IHallRepository, HallRepository>();
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
-        // Реєстрація хендлерів
         builder.Services.AddScoped<UseCaseManager>();
 
         builder.Services.AddScoped<AddMovieHandler>();
@@ -73,21 +76,16 @@ public class Program
         builder.Services.AddScoped<GetUserTicketsHandler>();
 
 
-
-        // Налаштування FluentValidation
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddFluentValidationClientsideAdapters();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateMovieValidator>();
 
-        // Налаштування AutoMapper
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-        // Використання Serilog
         builder.Host.UseSerilog();
 
         var app = builder.Build();
 
-        // Налаштування middleware
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
