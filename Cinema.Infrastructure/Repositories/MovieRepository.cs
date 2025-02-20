@@ -141,5 +141,10 @@ namespace Cinema.Infrastructure.Repositories
                 throw;
             }
         }
+
+        public async Task<bool> MovieExistsAsync(int movieId)
+        {
+            return await _context.Movies.AnyAsync(m => m.Id == movieId);
+        }
     }
 }

@@ -18,12 +18,12 @@ namespace Cinema.Domain.Entities
         public DateTime SessionTime { get; set; }
 
         [NotMapped]
-        public int HallNumber => Seat.Row.Hall.NumberOfHall;
+        public int HallNumber => Seat!.Row!.Hall!.NumberOfHall;
 
         [NotMapped]
-        public int RowNumber => Seat.Row.RowNumber;
+        public int RowNumber => Seat!.Row!.RowNumber;
 
         [NotMapped]
-        public int SeatNumber => Seat.SeatNumber;
+        public int SeatNumber => Seat!.SeatNumber;
     }
  }

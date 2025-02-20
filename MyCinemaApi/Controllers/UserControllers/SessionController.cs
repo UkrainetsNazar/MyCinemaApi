@@ -10,10 +10,10 @@ namespace Cinema.Presentation.Controllers.UserControllers
     public class SessionController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
-        private readonly IRedisCacheService _cache;
+        private readonly ICacheService _cache;
         private readonly int DurationTime = 2;
 
-        public SessionController(UseCaseManager useCaseManager, IRedisCacheService redisCacheService)
+        public SessionController(UseCaseManager useCaseManager, ICacheService redisCacheService)
         {
             _useCaseManager = useCaseManager;
             _cache = redisCacheService;

@@ -11,10 +11,10 @@ namespace Cinema.Presentation.Controllers.UserControllers
     public class TicketController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
-        private readonly IRedisCacheService _cache;
+        private readonly ICacheService _cache;
         private readonly int DurationTime = 2;
 
-        public TicketController(UseCaseManager useCaseManager, IRedisCacheService redisCacheService)
+        public TicketController(UseCaseManager useCaseManager, ICacheService redisCacheService)
         {
             _useCaseManager = useCaseManager;
             _cache = redisCacheService;

@@ -5,6 +5,7 @@ using Cinema.Application.DTO.RowDTOs;
 using Cinema.Application.DTO.SeatDTOs;
 using Cinema.Application.DTO.SessionDTOs;
 using Cinema.Application.DTO.TicketDTOs;
+using Cinema.Application.DTO.TmdbDTO;
 using Cinema.Application.DTO.UserDTOs;
 using Cinema.Domain.Entities;
 
@@ -57,6 +58,23 @@ namespace Cinema.Application.Mapping
 
             CreateMap<User, GetUserDTO>().ReverseMap();
             CreateMap<User, CreateUserDTO>().ReverseMap();
+
+            CreateMap<TmdbDto, Movie>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.MovieTitle))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(src => DateTime.Parse(src.ReleaseDate!)))
+                .ForMember(dest => dest.PosterUrl, opt => opt.MapFrom(src =>
+                string.IsNullOrEmpty(src.PosterPath)
+                ? "https://example.com/default-poster.jpg"
+                : $"https://image.tmdb.org/t/p/w500{src.PosterPath}"
+                ))
+                .ForMember(dest => dest.Rating, opt => opt.Ignore())
+                .ForMember(dest => dest.RatingCount, opt => opt.Ignore())
+                .ForMember(dest => dest.StartDate, opt => opt.Ignore())
+                .ForMember(dest => dest.EndDate, opt => opt.Ignore())
+                .ForMember(dest => dest.Sessions, opt => opt.Ignore())
+                .ForMember(dest => dest.TrailerUrl, opt => opt.Ignore());
         }
     }
 }

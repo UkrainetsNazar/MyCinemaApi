@@ -1,5 +1,6 @@
 ﻿using Cinema.Application.DTO.HallDTOs;
 using Cinema.Application.UseCases;
+using Cinema.Infrastructure.ExternalServices;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -10,11 +11,13 @@ namespace Cinema.Presentation.Controllers.AdminControllers
     public class AdminHallController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
+        private readonly ICacheService _cache;
 
-        public AdminHallController(UseCaseManager useCaseManager)
+        public AdminHallController(UseCaseManager useCaseManager, ICacheService redisCacheService)
         {
             _useCaseManager = useCaseManager;
-        }
+            _cache = redisCacheService;
+        }   
 
         [HttpPost]
         public async Task<IActionResult> CreateHall([FromBody] CreateHallDTO request)

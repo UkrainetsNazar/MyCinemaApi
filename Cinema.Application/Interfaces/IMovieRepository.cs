@@ -10,5 +10,6 @@ namespace Cinema.Application.Interfaces
         Task UpdateMovieAsync(int id, Movie movie);
         Task DeleteMovieAsync(int id);
         Task<IEnumerable<Movie>> GetMoviesByDateAsync(DateTime date);
+        Task<bool> MovieExistsAsync(int movieId);
     }
 }

@@ -14,7 +14,7 @@ using Cinema.Application.UseCases.HallUseCases;
 using Cinema.Application.UseCases.SessionUseCases;
 using Cinema.Application.UseCases.TicketUseCases;
 using Cinema.Infrastructure.ExternalServices;
-using StackExchange.Redis;
+using Cinema.Infrastructure.Caching;
 
 namespace MyCinemaApi;
 
@@ -45,17 +45,13 @@ public class Program
             options.UseInMemoryDatabase("MyInMemoryDb");
         });
 
-        builder.Services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = "localhost:6379";
-            options.InstanceName = "SampleInstance";
-        });
+        builder.Services.AddMemoryCache();
 
-        builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
-        {
-            var configuration = ConfigurationOptions.Parse("localhost:6379");
-            return ConnectionMultiplexer.Connect(configuration);
-        });
+        builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
+
+        builder.Services.Configure<TmdbSettings>(builder.Configuration.GetSection("TMDB"));
+        builder.Services.AddHttpClient<TmdbService>();
+        builder.Services.AddScoped<TmdbService>();
 
         builder.Services.AddScoped<IMovieRepository, MovieRepository>();
         builder.Services.AddScoped<IHallRepository, HallRepository>();
@@ -63,7 +59,6 @@ public class Program
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
         builder.Services.AddScoped<UseCaseManager>();
 

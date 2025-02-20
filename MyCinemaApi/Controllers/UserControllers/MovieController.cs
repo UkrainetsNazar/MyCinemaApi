@@ -1,5 +1,6 @@
 ﻿using Cinema.Application.DTO.MovieDTOs;
 using Cinema.Application.UseCases;
+using Cinema.Infrastructure.Caching;
 using Cinema.Infrastructure.ExternalServices;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -11,13 +12,13 @@ namespace Cinema.Presentation.Controllers.UserControllers
     public class MovieController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
-        private readonly IRedisCacheService _cache;
+        private readonly ICacheService _cache;
         private readonly int DurationTime = 10;
 
-        public MovieController(UseCaseManager useCaseManager, IRedisCacheService redisCacheService)
+        public MovieController(UseCaseManager useCaseManager, ICacheService cacheService)
         {
             _useCaseManager = useCaseManager;
-            _cache = redisCacheService;
+            _cache = cacheService;
         }
 
         [HttpGet("{id}/sessions")]
@@ -85,7 +86,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
                 var updatedMovie = await _useCaseManager.MovieRatingHandler.HandleAsync(request.MovieId, request.Rating);
 
                 var cachePattern = $"movie_{request.MovieId}_sessions_";
-                _cache.ClearDataByPatternAsync(cachePattern);
+                _cache.ClearDataByPattern(cachePattern);
 
                 stopwatch.Stop();
                 return Ok(ResponseCreator.Success(updatedMovie, 200, stopwatch.Elapsed.TotalMilliseconds));

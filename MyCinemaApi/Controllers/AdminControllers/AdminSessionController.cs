@@ -11,9 +11,9 @@ namespace Cinema.Presentation.Controllers.AdminControllers
     public class AdminSessionController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
-        private readonly IRedisCacheService _cache;
+        private readonly ICacheService _cache;
 
-        public AdminSessionController(UseCaseManager useCaseManager, IRedisCacheService redisCacheService)
+        public AdminSessionController(UseCaseManager useCaseManager, ICacheService redisCacheService)
         {
             _useCaseManager = useCaseManager;
             _cache = redisCacheService;
@@ -28,7 +28,7 @@ namespace Cinema.Presentation.Controllers.AdminControllers
                 await _useCaseManager.AddSessionHandler.HandleAsync(addSessionDTO);
 
                 var cachePattern = $"movie_{addSessionDTO.MovieId}_sessions_";
-                await _cache.ClearDataByPatternAsync(cachePattern);
+                _cache.ClearDataByPattern(cachePattern);
 
                 stopwatch.Stop();
                 return Ok(ResponseCreator.Success("Сеанс успішно додано", 200, stopwatch.Elapsed.TotalMilliseconds));
