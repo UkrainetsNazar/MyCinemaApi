@@ -1,9 +1,12 @@
 ﻿using Cinema.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Cinema.Domain.Enums;
 
 namespace Cinema.Infrastructure.Persistence
 {
-    public class CinemaDbContext : DbContext
+    public class CinemaDbContext : IdentityDbContext<User>
     {
         public CinemaDbContext(DbContextOptions<CinemaDbContext> options) : base(options) { }
         public DbSet<Movie> Movies { get; set; }
@@ -12,7 +15,6 @@ namespace Cinema.Infrastructure.Persistence
         public DbSet<Hall> Halls { get; set; }
         public DbSet<Row> Rows { get; set; }
         public DbSet<Seat> Seats { get; set; }
-        public DbSet<User> Users { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -37,6 +39,25 @@ namespace Cinema.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            List<IdentityRole> roles = new()
+            {
+                new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole
+                {
+                    Name = "User",
+                    NormalizedName = "USER"
+                }
+            };
+
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
+
+
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.MovieTitle)
                 .IsUnique();

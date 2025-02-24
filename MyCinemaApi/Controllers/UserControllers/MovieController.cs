@@ -2,6 +2,7 @@
 using Cinema.Application.UseCases;
 using Cinema.Infrastructure.Caching;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -21,6 +22,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
             _cache = cacheService;
         }
 
+        [Authorize]
         [HttpGet("{id}/sessions")]
         public async Task<IActionResult> GetMovieWithSessions(int id, [FromQuery] DateTime date)
         {
@@ -77,6 +79,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
             }
         }
 
+        [Authorize]
         [HttpPost("rate-movie")]
         public async Task<IActionResult> RateMovie([FromBody] MovieRatingDTO request)
         {

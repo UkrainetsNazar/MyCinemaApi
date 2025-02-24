@@ -1,11 +1,13 @@
 ﻿using Cinema.Application.DTO.TicketDTOs;
 using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/ticket")]
     public class TicketController : ControllerBase
@@ -21,7 +23,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
         }
 
         [HttpGet("my-tickets")]
-        public async Task<IActionResult> GetUserTickets(int UserId)
+        public async Task<IActionResult> GetUserTickets(string UserId)
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -54,7 +56,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var ticket = await _useCaseManager.BuyTicketHandler.HandleAsync(request.SessionId, request.SeatId, request.UserId);
+                var ticket = await _useCaseManager.BuyTicketHandler.HandleAsync(request.SessionId, request.SeatId, request.UserId!);
 
                 var cacheKey = $"user_tickets_{request.UserId}";
                 _cache.SetData(cacheKey, ticket, DurationTime);

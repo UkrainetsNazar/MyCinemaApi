@@ -1,10 +1,12 @@
 ﻿using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/session")]
     public class SessionController : ControllerBase

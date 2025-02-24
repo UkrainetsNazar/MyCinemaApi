@@ -9,6 +9,6 @@ namespace Cinema.Application.Interfaces
         Task AddTicketAsync(Ticket ticket);
         Task UpdateTicketAsync(int id, Ticket ticket);
         Task DeleteTicketAsync(int id);
-        Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(int userId);
+        Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(string userId);
     }
 }

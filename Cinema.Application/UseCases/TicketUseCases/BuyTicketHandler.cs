@@ -12,7 +12,7 @@ namespace Cinema.Application.UseCases.TicketUseCases
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Ticket> HandleAsync(int sessionId, int seatId, int userId)
+        public async Task<Ticket> HandleAsync(int sessionId, int seatId, string userId)
         {
             var session = await _unitOfWork.Sessions.GetSessionByIdAsync(sessionId);
             if (session == null)

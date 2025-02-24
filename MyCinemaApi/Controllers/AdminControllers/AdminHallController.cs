@@ -1,11 +1,13 @@
 ﻿using Cinema.Application.DTO.HallDTOs;
 using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.AdminControllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin/hall")]
     public class AdminHallController : ControllerBase

@@ -119,7 +119,7 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(string userId)
         {
             try
             {

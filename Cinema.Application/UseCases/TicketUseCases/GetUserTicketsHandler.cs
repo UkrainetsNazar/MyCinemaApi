@@ -16,7 +16,7 @@ namespace Cinema.Application.UseCases.TicketUseCases
             _mapper = mapper;
         }
 
-        public async Task<List<GetTicketForUserDTO>> HandleAsync(int userId)
+        public async Task<List<GetTicketForUserDTO>> HandleAsync(string userId)
         {
             var tickets = await _unitOfWork.Tickets.GetTicketsByUserIdAsync(userId);
             if (tickets == null || !tickets.Any())

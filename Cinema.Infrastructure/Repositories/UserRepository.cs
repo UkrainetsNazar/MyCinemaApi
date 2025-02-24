@@ -17,22 +17,7 @@ namespace Cinema.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task AddUserAsync(User user)
-        {
-            try
-            {
-                _logger.LogInformation("Adding user with username {UserName} and email {Email}", user.UserName, user.Email);
-                await _context.Users.AddAsync(user);
-                _logger.LogInformation("User {UserName} added successfully", user.UserName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding user with username {UserName}", user.UserName);
-                throw;
-            }
-        }
-
-        public async Task DeleteUserAsync(int id)
+        public async Task DeleteUserAsync(string id)
         {
             try
             {
@@ -41,6 +26,7 @@ namespace Cinema.Infrastructure.Repositories
                 if (user != null)
                 {
                     _context.Users.Remove(user);
+                    await _context.SaveChangesAsync();
                     _logger.LogInformation("User with id {UserId} deleted successfully", id);
                 }
                 else
@@ -72,7 +58,7 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(string id)
         {
             try
             {
@@ -96,7 +82,7 @@ namespace Cinema.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateUserAsync(int id, User user)
+        public async Task UpdateUserAsync(string id, User user)
         {
             try
             {
@@ -106,7 +92,8 @@ namespace Cinema.Infrastructure.Repositories
                 {
                     existingUser.UserName = user.UserName;
                     existingUser.Email = user.Email;
-                    existingUser.Password = user.Password;
+
+                    await _context.SaveChangesAsync();
                     _logger.LogInformation("User with id {UserId} updated successfully", id);
                 }
                 else

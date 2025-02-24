@@ -9,7 +9,7 @@ namespace Cinema.Application.DTO.TicketDTOs
     public class CreateTicketDTO
     {
         public int SessionId { get; set; }
-        public int UserId { get; set; }
+        public string? UserId { get; set; }
         public int SeatId { get; set; }
     }
 }

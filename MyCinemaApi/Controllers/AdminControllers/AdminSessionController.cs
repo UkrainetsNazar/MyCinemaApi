@@ -1,11 +1,13 @@
 ﻿using Cinema.Application.DTO.SessionDTOs;
 using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.AdminControllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin/session")]
     public class AdminSessionController : ControllerBase
