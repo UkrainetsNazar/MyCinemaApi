@@ -1,6 +1,9 @@
 ﻿using AuthService.Data;
+using AuthService.DTO;
 using AuthService.Services.Interfaces;
-using Cinema.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,40 +13,74 @@ namespace AuthService.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
-        private readonly SymmetricSecurityKey _key;
-        public TokenService(IConfiguration configuration)
+        private readonly JwtOptions _jwtOptions;
+        private readonly UserManager<User> _userManager;
+        public TokenService(IOptions<JwtOptions> options, UserManager<User> userManager)
         {
-            _configuration = configuration;
-            _key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Key"]!));
+            _jwtOptions = options.Value;
+            _userManager = userManager;
         }
 
-        public string CreateToken(User user)
+        public async Task<LoginResponseDto> Authenticate (LoginDto model)
         {
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.Secret));
+
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+                throw new Exception("Email and Password are required.");
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+
+            var result = await _userManager.CheckPasswordAsync(user, model.Password!);
+            if (!result)
+                throw new Exception("Invalid password");
+
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Id),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(ClaimTypes.Role, "User")
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName!)
             };
 
-            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var descriptor = new SecurityTokenDescriptor()
             {
+                Audience = _jwtOptions.Audience,
+                Issuer = _jwtOptions.Issuer,
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = creds,
-                Issuer = _configuration["JWT:Issuer"],
-                Audience = _configuration["JWT:Audience"]
+                Expires = DateTime.Now.AddDays(7),
+                SigningCredentials = new SigningCredentials (key, SecurityAlgorithms.HmacSha256Signature)
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var token = tokenHandler.CreateToken(descriptor);
             Console.WriteLine("Generated Token: " + tokenHandler.WriteToken(token));
+            var accessToken = tokenHandler.WriteToken(token);
 
-            return tokenHandler.WriteToken(token);
+            return new LoginResponseDto
+            {
+                AccessToken = accessToken,
+                UserName = user.UserName,
+                Email = user.Email
+            };
+        }
+
+        public async Task<IdentityResult> Register(RegisterDto model)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                throw new Exception($"User with email {model.Email} already exists.");
+            }
+
+            var user = new User
+            {
+                UserName = model.UserName,
+                Email = model.Email
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            return result;
         }
     }
 }

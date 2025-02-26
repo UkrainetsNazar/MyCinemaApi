@@ -4,20 +4,16 @@ using AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 [Route("api/auth")]
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-    private readonly IAuthenticationService _authService;
+    private readonly ITokenService _tokenService;
 
-    public AuthController(UserManager<User> userManager, IAuthenticationService authService)
+    public AuthController(ITokenService tokenService)
     {
-        _userManager = userManager;
-        _authService = authService;
+        _tokenService = tokenService;
     }
 
     [HttpPost("register")]
@@ -28,9 +24,12 @@ public class AuthController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userInfo = await _authService.Register(model);
+            var result = await _tokenService.Register(model);
 
-            return Ok(userInfo);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("User registered successfully.");
         }
         catch (Exception e)
         {
@@ -46,7 +45,7 @@ public class AuthController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userInfo = await _authService.Login(model);
+            var userInfo = await _tokenService.Authenticate(model);
 
             return Ok(userInfo);
         }
@@ -55,37 +54,4 @@ public class AuthController : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-
-    [Authorize]
-    [HttpGet("user-info")]
-    public async Task<IActionResult> GetUserInfo()
-    {
-        try
-        {
-            var userId = User.FindFirstValue(JwtRegisteredClaimNames.NameId);
-            Console.WriteLine($"User ID from token: {userId}");
-
-            if (userId == null)
-            {
-                Console.WriteLine("User ID is null in the token.");
-                return BadRequest("Invalid token");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                Console.WriteLine($"User with ID {userId} not found in database.");
-                return NotFound("User not found");
-            }
-
-            Console.WriteLine($"User found: {user.UserName}, Email: {user.Email}");
-            return Ok(new UserInfoDto { Email = user.Email, UserName = user.UserName });
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error in GetUserInfo: {e.Message}");
-            return StatusCode(500, e.Message);
-        }
-    }
 }
-

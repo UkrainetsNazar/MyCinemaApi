@@ -5,6 +5,7 @@ VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cinema.Presentation", "MyCinemaApi\Cinema.Presentation.csproj", "{983943B0-CF9B-4708-9B80-B2A2C3729104}"
 	ProjectSection(ProjectDependencies) = postProject
+		{54EDC384-1CF3-4C7C-A267-AE5C883872B2} = {54EDC384-1CF3-4C7C-A267-AE5C883872B2}
 		{C5756033-193D-4631-A8FD-FA0B1E9922F4} = {C5756033-193D-4631-A8FD-FA0B1E9922F4}
 	EndProjectSection
 EndProject
@@ -22,9 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cinema.Application", "Cinem
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{54EDC384-1CF3-4C7C-A267-AE5C883872B2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8EEE512D-C14A-4770-8CC9-2DF0F9E52721} = {8EEE512D-C14A-4770-8CC9-2DF0F9E52721}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
