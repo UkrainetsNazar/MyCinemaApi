@@ -82,36 +82,27 @@ public class Program
                 Scheme = "Bearer"
             });
             options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
-        {
-            new OpenApiSecurityScheme()
             {
-                Reference = new OpenApiReference()
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
+                    new OpenApiSecurityScheme()
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = JwtBearerDefaults.AuthenticationScheme
+                        }
+                    }, new string[] {}
                 }
-            }, new string[] {}
-        }
-    });
+            });
         });
 
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
         });
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll", policy =>
-            {
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
-        });
 
         var useInMemoryDB = builder.Configuration.GetValue<bool>("UseInMemoryDB");
 
@@ -145,7 +136,6 @@ public class Program
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = false;
             options.Password.RequiredLength = 6;
         })
             .AddEntityFrameworkStores<CinemaDbContext>()
