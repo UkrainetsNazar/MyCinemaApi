@@ -1,9 +1,11 @@
 ﻿using Cinema.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Infrastructure.Persistence
 {
-    public class CinemaDbContext : DbContext
+    public class CinemaDbContext : IdentityDbContext<User>
     {
         public CinemaDbContext(DbContextOptions<CinemaDbContext> options) : base(options) { }
 
@@ -14,70 +16,61 @@ namespace Cinema.Infrastructure.Persistence
         public DbSet<Row> Rows { get; set; }
         public DbSet<Seat> Seats { get; set; }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            var currentTime = DateTime.Now;
+            base.OnModelCreating(builder);
 
-            var sessions = await Sessions.ToListAsync(cancellationToken);
-
-            var expiredSessions = sessions.Where(s =>
+            List<IdentityRole> roles = new()
             {
-                var movie = s.Movie;
-                if (movie == null)
-                    return false;
+                new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" },
+                new IdentityRole { Name = "User", NormalizedName = "USER" }
+            };
 
-                var endTime = s.StartTime.AddMinutes(movie.DurationMinutes);
-                return endTime < currentTime;
-            }).ToList();
+            builder.Entity<IdentityRole>().HasData(roles);
 
-            Sessions.RemoveRange(expiredSessions);
+            builder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Movie>()
+            builder.Entity<Movie>()
                 .HasIndex(m => m.MovieTitle)
                 .IsUnique();
 
-            modelBuilder.Entity<Session>()
+            builder.Entity<Session>()
                 .HasOne(s => s.Movie)
                 .WithMany(m => m.Sessions)
                 .HasForeignKey(s => s.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Session>()
+            builder.Entity<Session>()
                 .HasOne(s => s.Hall)
                 .WithMany(h => h.Sessions)
                 .HasForeignKey(s => s.HallId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Ticket>()
+            builder.Entity<Ticket>()
                 .HasOne(t => t.Session)
                 .WithMany(s => s.Tickets)
                 .HasForeignKey(t => t.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Hall>()
+            builder.Entity<Hall>()
                 .HasIndex(h => h.NumberOfHall)
                 .IsUnique();
 
-            modelBuilder.Entity<Row>()
+            builder.Entity<Row>()
                 .HasOne(r => r.Hall)
                 .WithMany(h => h.Rows)
                 .HasForeignKey(r => r.HallId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Seat>()
+            builder.Entity<Seat>()
                 .HasOne(s => s.Row)
                 .WithMany(r => r.Seats)
                 .HasForeignKey(s => s.RowId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Seat>()
+            builder.Entity<Seat>()
                 .HasOne(s => s.Ticket)
                 .WithOne(t => t.Seat)
                 .HasForeignKey<Ticket>(t => t.SeatId)

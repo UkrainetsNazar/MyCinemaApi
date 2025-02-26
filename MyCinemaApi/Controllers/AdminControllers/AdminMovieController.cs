@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.AdminControllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminOnly")]
     [Route("api/tmdb")]
     [ApiController]
     public class AdminMovieController : ControllerBase

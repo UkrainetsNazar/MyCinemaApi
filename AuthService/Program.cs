@@ -12,11 +12,9 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
-
-
 var jwtOptions = builder.Configuration.GetSection("ApiSettings:JwtOptions").Get<JwtOptions>();
 
-if (string.IsNullOrEmpty(jwtOptions.Secret))
+if (string.IsNullOrEmpty(jwtOptions!.Secret))
 {
     throw new ArgumentNullException("ApiSettings:Secret", "The secret key cannot be null or empty.");
 }
@@ -25,17 +23,8 @@ var secret = jwtOptions.Secret;
 var issuer = jwtOptions.Issuer;
 var audience = jwtOptions.Audience;
 
-Console.WriteLine($"Secret: {secret}");
-
-if (string.IsNullOrEmpty(secret))
-{
-    throw new ArgumentNullException("ApiSettings:Secret", "The secret key cannot be null or empty.");
-}
-
 CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
-
-var useInMemoryDB = builder.Configuration.GetValue<bool>("UseInMemoryDB");
 
 var key = Encoding.ASCII.GetBytes(secret!);
 builder.Services.AddAuthentication(options =>
@@ -87,9 +76,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -99,6 +88,8 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+var useInMemoryDB = builder.Configuration.GetValue<bool>("UseInMemoryDB");
 
 if (useInMemoryDB)
 {
@@ -138,7 +129,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
 app.UseRouting();
 
@@ -162,3 +152,4 @@ static async Task InitializeRoles(IServiceProvider serviceProvider, RoleManager<
         }
     }
 }
+

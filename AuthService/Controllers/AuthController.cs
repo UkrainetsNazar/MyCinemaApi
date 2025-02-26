@@ -1,8 +1,5 @@
-﻿using AuthService.Data;
-using AuthService.DTO;
+﻿using AuthService.DTO;
 using AuthService.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/auth")]

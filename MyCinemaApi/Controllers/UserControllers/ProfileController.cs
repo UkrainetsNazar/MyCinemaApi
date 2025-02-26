@@ -1,15 +1,14 @@
-﻿using AuthService.Data;
-using Cinema.Application.UseCases;
+﻿using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
-using Cinema.Infrastructure.Persistence;
 using Cinema.Presentation.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
-
+using Cinema.Application.DTO.AuthServiceDTOs;
+using Cinema.Domain.Entities;
+using Cinema.Application.UseCases.AuthServices;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
@@ -23,7 +22,11 @@ namespace Cinema.Presentation.Controllers.UserControllers
         private readonly UseCaseManager _useCaseManager;
         private readonly ICacheService _cache;
 
-        public ProfileController(UserManager<User> userManager, UseCaseManager useCaseManager, ICacheService cache)
+        public ProfileController(
+            UserManager<User> userManager,
+            UseCaseManager useCaseManager,
+            ICacheService cache,
+            ITokenService authService)
         {
             _userManager = userManager;
             _useCaseManager = useCaseManager;
@@ -73,7 +76,6 @@ namespace Cinema.Presentation.Controllers.UserControllers
                 return BadRequest(ResponseCreator.Error<object>(ex.Message, 400, stopwatch.Elapsed.TotalMilliseconds));
             }
         }
-
 
         [HttpPut("update-username")]
         public async Task<IActionResult> UpdateUserName([FromBody] string userName)
@@ -138,6 +140,5 @@ namespace Cinema.Presentation.Controllers.UserControllers
                 return BadRequest(ResponseCreator.Error<object>(ex.Message, 400, stopwatch.Elapsed.TotalMilliseconds));
             }
         }
-
     }
 }
