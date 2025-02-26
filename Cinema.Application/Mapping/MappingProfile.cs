@@ -6,7 +6,6 @@ using Cinema.Application.DTO.SeatDTOs;
 using Cinema.Application.DTO.SessionDTOs;
 using Cinema.Application.DTO.TicketDTOs;
 using Cinema.Application.DTO.TmdbDTO;
-using Cinema.Application.DTO.UserDTOs;
 using Cinema.Domain.Entities;
 
 namespace Cinema.Application.Mapping
@@ -55,9 +54,6 @@ namespace Cinema.Application.Mapping
                 .ForMember(dest => dest.SeatNumber, opt => opt.MapFrom(src => src.Seat!.SeatNumber))
                 .ForMember(dest => dest.HallNumber, opt => opt.MapFrom(src => src.Session!.Hall!.NumberOfHall.ToString()))
                 .ForMember(dest => dest.RowNumber, opt => opt.MapFrom(src => src.Seat!.Row!.RowNumber));
-
-            CreateMap<User, GetUserDTO>().ReverseMap();
-            CreateMap<User, CreateUserDTO>().ReverseMap();
 
             CreateMap<TmdbDto, Movie>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

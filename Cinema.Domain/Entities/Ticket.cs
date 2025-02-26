@@ -9,7 +9,6 @@ namespace Cinema.Domain.Entities
         public Session? Session { get; set; }
 
         public string? UserId { get; set; }
-        public User? User { get; set; }
 
         public int SeatId { get; set; }
         public Seat? Seat { get; set; }

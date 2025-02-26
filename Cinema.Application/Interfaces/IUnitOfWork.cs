@@ -4,7 +4,6 @@
     {
         IMovieRepository Movies { get; }
         ISessionRepository Sessions { get; }
-        IUserRepository Users { get; }
         IHallRepository Halls { get; }
         ITicketRepository Tickets { get; }
         ISeatRepository Seats { get; }

@@ -1,14 +1,12 @@
 ﻿using Cinema.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Cinema.Domain.Enums;
 
 namespace Cinema.Infrastructure.Persistence
 {
-    public class CinemaDbContext : IdentityDbContext<User>
+    public class CinemaDbContext : DbContext
     {
         public CinemaDbContext(DbContextOptions<CinemaDbContext> options) : base(options) { }
+
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
@@ -26,7 +24,7 @@ namespace Cinema.Infrastructure.Persistence
             {
                 var movie = s.Movie;
                 if (movie == null)
-                    return false; 
+                    return false;
 
                 var endTime = s.StartTime.AddMinutes(movie.DurationMinutes);
                 return endTime < currentTime;
@@ -41,68 +39,49 @@ namespace Cinema.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            List<IdentityRole> roles = new()
-            {
-                new IdentityRole
-                {
-                    Name = "Admin",
-                    NormalizedName = "ADMIN"
-                },
-                new IdentityRole
-                {
-                    Name = "User",
-                    NormalizedName = "USER"
-                }
-            };
-
-            modelBuilder.Entity<IdentityRole>().HasData(roles);
-
-
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.MovieTitle)
                 .IsUnique();
+
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Movie)
                 .WithMany(m => m.Sessions)
                 .HasForeignKey(s => s.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Hall)
                 .WithMany(h => h.Sessions)
                 .HasForeignKey(s => s.HallId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Session)
                 .WithMany(s => s.Tickets)
                 .HasForeignKey(t => t.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.User)
-                .WithMany(u => u.Tickets)
-                .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Hall>()
                 .HasIndex(h => h.NumberOfHall)
                 .IsUnique();
+
             modelBuilder.Entity<Row>()
                 .HasOne(r => r.Hall)
                 .WithMany(h => h.Rows)
                 .HasForeignKey(r => r.HallId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Seat>()
                 .HasOne(s => s.Row)
                 .WithMany(r => r.Seats)
                 .HasForeignKey(s => s.RowId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
+
             modelBuilder.Entity<Seat>()
                 .HasOne(s => s.Ticket)
                 .WithOne(t => t.Seat)
                 .HasForeignKey<Ticket>(t => t.SeatId)
                 .OnDelete(DeleteBehavior.Cascade);
-            base.OnModelCreating(modelBuilder);
         }
     }
 }

@@ -56,7 +56,6 @@ public class Program
         builder.Services.AddScoped<IMovieRepository, MovieRepository>();
         builder.Services.AddScoped<IHallRepository, HallRepository>();
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

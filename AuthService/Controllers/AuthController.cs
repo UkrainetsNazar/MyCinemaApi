@@ -1,49 +1,91 @@
-﻿using AuthService.DTO;
-using Cinema.Domain.Entities;
+﻿using AuthService.Data;
+using AuthService.DTO;
+using AuthService.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 [Route("api/auth")]
 [ApiController]
 public class AuthController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
+    private readonly IAuthenticationService _authService;
 
-    public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
+    public AuthController(UserManager<User> userManager, IAuthenticationService authService)
     {
         _userManager = userManager;
-        _signInManager = signInManager;
+        _authService = authService;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        var user = new User { UserName = model.Email, Email = model.Email };
-        var result = await _userManager.CreateAsync(user, model.Password!);
+            var userInfo = await _authService.Register(model);
 
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
-
-        var roleResult = await _userManager.AddToRoleAsync(user, "User"); 
-        if (!roleResult.Succeeded)
-            return BadRequest(roleResult.Errors);
-
-        return Ok("Registration successful");
+            return Ok(userInfo);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
-        var result = await _signInManager.PasswordSignInAsync(model.Email!, model.Password!, false, false);
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        if (!result.Succeeded)
-            return Unauthorized();
+            var userInfo = await _authService.Login(model);
 
-        return Ok("Login successful");
+            return Ok(userInfo);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpGet("user-info")]
+    public async Task<IActionResult> GetUserInfo()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.NameId);
+            Console.WriteLine($"User ID from token: {userId}");
+
+            if (userId == null)
+            {
+                Console.WriteLine("User ID is null in the token.");
+                return BadRequest("Invalid token");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                Console.WriteLine($"User with ID {userId} not found in database.");
+                return NotFound("User not found");
+            }
+
+            Console.WriteLine($"User found: {user.UserName}, Email: {user.Email}");
+            return Ok(new UserInfoDto { Email = user.Email, UserName = user.UserName });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error in GetUserInfo: {e.Message}");
+            return StatusCode(500, e.Message);
+        }
     }
 }
 

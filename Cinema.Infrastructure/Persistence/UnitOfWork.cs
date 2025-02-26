@@ -7,21 +7,19 @@ namespace Cinema.Infrastructure.Persistence
     {
         private readonly CinemaDbContext _context;
         private IDbContextTransaction _transaction;
-        public IUserRepository Users { get; }
         public IHallRepository Halls { get; }
         public IMovieRepository Movies { get; }
         public ISessionRepository Sessions { get; }
         public ISeatRepository Seats { get; }
         public ITicketRepository Tickets { get; }
 
-        public UnitOfWork(CinemaDbContext context, IMovieRepository movieRepository, ISessionRepository sessionRepository, IHallRepository hallRepository, ITicketRepository ticketRepository, IUserRepository userRepository)
+        public UnitOfWork(CinemaDbContext context, IMovieRepository movieRepository, ISessionRepository sessionRepository, IHallRepository hallRepository, ITicketRepository ticketRepository)
         {
             _context = context;
             Movies = movieRepository;
             Sessions = sessionRepository;
             Halls = hallRepository;
             Tickets = ticketRepository;
-            Users = userRepository;
         }
 
         public async Task BeginTransactionAsync()
