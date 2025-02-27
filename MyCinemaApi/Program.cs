@@ -49,6 +49,7 @@ public class Program
         CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 
         var key = Encoding.ASCII.GetBytes(secret!);
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -137,6 +138,7 @@ public class Program
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = false;
         })
             .AddEntityFrameworkStores<CinemaDbContext>()
             .AddDefaultTokenProviders();

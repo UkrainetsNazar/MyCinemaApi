@@ -25,6 +25,7 @@ namespace Cinema.Presentation.Controllers.AdminControllers
         public async Task<IActionResult> CreateSession([FromBody] CreateSessionDTO addSessionDTO)
         {
             var stopwatch = Stopwatch.StartNew();
+            var user = User;
             try
             {
                 await _useCaseManager.AddSessionHandler.HandleAsync(addSessionDTO);

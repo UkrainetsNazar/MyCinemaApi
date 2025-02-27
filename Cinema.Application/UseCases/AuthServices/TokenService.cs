@@ -40,7 +40,8 @@ namespace Cinema.Application.UseCases.AuthServices
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Name, user.UserName!)
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
+                new Claim(ClaimTypes.Role, "Admin")
             };
 
             var descriptor = new SecurityTokenDescriptor()
@@ -83,8 +84,9 @@ namespace Cinema.Application.UseCases.AuthServices
 
             if (!result.Succeeded)
             {
-                return result;
+                throw new Exception ("User is not created");
             }
+
             if (!string.IsNullOrEmpty(model.Role))
             {
                 var normalizedRole = model.Role.ToUpperInvariant();

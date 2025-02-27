@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.AdminControllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Roles = "Admin")]
     [Route("api/tmdb")]
     [ApiController]
     public class AdminMovieController : ControllerBase
@@ -24,6 +24,7 @@ namespace Cinema.Presentation.Controllers.AdminControllers
         public async Task<IActionResult> AddMovie([FromQuery] int tmdbId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             var stopwatch = Stopwatch.StartNew();
+            var user = User;
             try
             {
                 var cacheKey = $"movie_{tmdbId}";
