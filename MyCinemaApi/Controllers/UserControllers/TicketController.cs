@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [ApiController]
     [Route("api/ticket")]
     public class TicketController : ControllerBase

@@ -18,12 +18,13 @@ using Cinema.Infrastructure.Caching;
 using Cinema.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Cinema.Domain.ValueObjects;
+using System.Globalization;
+using Cinema.Application.UseCases.AuthServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Globalization;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Cinema.Application.UseCases.AuthServices;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace MyCinemaApi;
 
@@ -33,78 +34,33 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
-        var jwtOptions = builder.Configuration.GetSection("ApiSettings:JwtOptions").Get<JwtOptions>();
-
-        if (string.IsNullOrEmpty(jwtOptions!.Secret))
+        // JWT configuration
+        builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+        var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>();
+        if (string.IsNullOrEmpty(jwtOptions?.Secret))
         {
-            throw new ArgumentNullException("ApiSettings:Secret", "The secret key cannot be null or empty.");
+            throw new ArgumentNullException("JwtOptions:Key", "JWT Secret key is missing in configuration.");
         }
-
-        var secret = jwtOptions.Secret;
+        var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
         var issuer = jwtOptions.Issuer;
         var audience = jwtOptions.Audience;
 
+        // Localization
         CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
         CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 
-        var key = Encoding.ASCII.GetBytes(secret!);
-
-        builder.Services.AddAuthentication(options =>
+        // CORS
+        builder.Services.AddCors(options =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
-        {
-            options.RequireHttpsMetadata = false;
-            options.SaveToken = true;
-            options.TokenValidationParameters = new TokenValidationParameters
+            options.AddPolicy("AllowAll", policy =>
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidIssuer = issuer,
-                ValidAudience = audience,
-                ValidateLifetime = true
-            };
-        });
-
-
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme()
-            {
-                Name = "Authorization",
-                Description = "Enter Authorization string as following: Bearer JwtToken",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-            {
-                {
-                    new OpenApiSecurityScheme()
-                    {
-                        Reference = new OpenApiReference()
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = JwtBearerDefaults.AuthenticationScheme
-                        }
-                    }, new string[] {}
-                }
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
             });
         });
 
-        builder.Services.AddAuthorization(options =>
-        {
-            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-        });
-
-        builder.Services.AddControllers();
-        builder.Services.AddEndpointsApiExplorer();
-
+        // Setting up DB
         var useInMemoryDB = builder.Configuration.GetValue<bool>("UseInMemoryDB");
 
         if (useInMemoryDB)
@@ -119,19 +75,7 @@ public class Program
                 sqlOptions => sqlOptions.EnableRetryOnFailure()));
         }
 
-
-        builder.Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-            });
-
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .WriteTo.Console()
-            .WriteTo.File("logs/errors.txt", rollingInterval: RollingInterval.Day)
-            .CreateLogger();
-
+        // Identity
         builder.Services.AddIdentity<User, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
@@ -143,14 +87,49 @@ public class Program
             .AddEntityFrameworkStores<CinemaDbContext>()
             .AddDefaultTokenProviders();
 
+        // Add Authentication + JWT
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = secret
+                };
+            });
+
+        builder.Services.AddAuthorization();
+
+        // Logging
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console()
+            .WriteTo.File("logs/errors.txt", rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        builder.Host.UseSerilog();
+
+
+        // Middleware and controllers
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            });
+
+
         builder.Services.AddMemoryCache();
-
         builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
-
         builder.Services.Configure<TmdbSettings>(builder.Configuration.GetSection("TMDB"));
         builder.Services.AddHttpClient<TmdbService>();
         builder.Services.AddScoped<TmdbService>();
 
+        // Scopes
         builder.Services.AddScoped<IMovieRepository, MovieRepository>();
         builder.Services.AddScoped<IHallRepository, HallRepository>();
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
@@ -160,6 +139,8 @@ public class Program
 
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<UseCaseManager>();
+        builder.Services.AddScoped<UserManager<User>>();
+        builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
         builder.Services.AddScoped<AddMovieHandler>();
         builder.Services.AddScoped<DeleteMovieHandler>();
@@ -177,10 +158,42 @@ public class Program
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddFluentValidationClientsideAdapters();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateMovieValidator>();
-
         builder.Services.AddAutoMapper(typeof(MappingProfile));
-
         builder.Host.UseSerilog();
+
+        // Swagger
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Cinema API", Version = "v1" });
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "¬вед≥ть JWT-токен у формат≥: Bearer {token}"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
+        });
+
+
 
         var app = builder.Build();
 
@@ -190,35 +203,21 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors("AllowAll");
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         using (var scope = app.Services.CreateScope())
         {
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            InitializeRoles(scope.ServiceProvider, roleManager);
+            IdentitySeeder.SeedRolesAsync(roleManager).GetAwaiter().GetResult();
         }
-
-        app.UseHttpsRedirection();
-
-        app.UseAuthentication();
-        app.UseAuthorization();
 
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseSerilogRequestLogging();
         app.MapControllers();
 
         app.Run();
-    }
-
-    public static async Task InitializeRoles(IServiceProvider serviceProvider, RoleManager<IdentityRole> roleManager)
-    {
-        var roleNames = new[] { "Admin", "User" };
-        foreach (var roleName in roleNames)
-        {
-            var roleExist = await roleManager.RoleExistsAsync(roleName);
-            if (!roleExist)
-            {
-                var role = new IdentityRole(roleName);
-                await roleManager.CreateAsync(role);
-            }
-        }
     }
 }

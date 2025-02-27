@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
-using Cinema.Application.DTO.AuthServiceDTOs;
 using Cinema.Domain.Entities;
 using Cinema.Application.UseCases.AuthServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProfileController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
