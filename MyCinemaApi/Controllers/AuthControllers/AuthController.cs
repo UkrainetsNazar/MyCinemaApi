@@ -4,46 +4,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema.Presentation.Controllers.AuthControllers
 {
-    [Route("api/auth")]
     [ApiController]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly ITokenService _tokenService;
-
-        public AuthController(ITokenService tokenService)
+        private readonly IAccountService _authService;
+        public AuthController(IAccountService authService)
         {
-            _tokenService = tokenService;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
-            try
-            {
-                var result = await _tokenService.RegisterAsync(model);
-                if (result == null)
-                    return BadRequest("Failed to register user");
-
-                return Ok("User registered successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            await _authService.RegisterAsync(model);
+            return Ok("Registration succeed");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            try
+            var token = await _authService.LoginAsync(model.Email!, model.Password!, model.Role);
+            HttpContext.Response.Cookies.Append("Token", token, new CookieOptions()
             {
-                var userInfo = await _tokenService.AuthenticateAsync(model);
-                return Ok(userInfo);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+                HttpOnly = true
+            });
+
+            return token.Contains("Invalid") ? Unauthorized(token) : Ok(new { Token = token });
         }
     }
 }

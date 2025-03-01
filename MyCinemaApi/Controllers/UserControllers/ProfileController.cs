@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
-using Cinema.Application.DTO.AuthServiceDTOs;
 using Cinema.Domain.Entities;
 using Cinema.Application.UseCases.AuthServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,6 +39,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                var userCheck = User;
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("User ID not found");

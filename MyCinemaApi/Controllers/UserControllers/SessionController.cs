@@ -6,7 +6,6 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/session")]
     public class SessionController : ControllerBase

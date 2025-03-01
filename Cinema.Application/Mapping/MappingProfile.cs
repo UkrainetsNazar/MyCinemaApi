@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Cinema.Application.DTO.AuthServiceDTOs;
 using Cinema.Application.DTO.HallDTOs;
 using Cinema.Application.DTO.MovieDTOs;
 using Cinema.Application.DTO.RowDTOs;
@@ -71,6 +72,10 @@ namespace Cinema.Application.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.Ignore())
                 .ForMember(dest => dest.Sessions, opt => opt.Ignore())
                 .ForMember(dest => dest.TrailerUrl, opt => opt.Ignore());
+
+            CreateMap<RegisterDto, User>().ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
         }
     }
 }

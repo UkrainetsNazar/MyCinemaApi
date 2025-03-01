@@ -1,6 +1,5 @@
 ﻿using Cinema.Application.DTO.MovieDTOs;
 using Cinema.Application.UseCases;
-using Cinema.Infrastructure.Caching;
 using Cinema.Infrastructure.ExternalServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
