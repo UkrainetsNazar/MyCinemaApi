@@ -32,7 +32,7 @@ namespace Cinema.Application.UseCases.AuthServices
             await _unitOfWork.Users.AddUser(user);
             await _unitOfWork.SaveChangesAsync();
         }
-        public async Task<string> LoginAsync(string email, string password)
+        public async Task<string> LoginAsync(string email, string password, string role)
         {
             var user = await _unitOfWork.Users.GetUserByEmail(email);
 
@@ -45,7 +45,8 @@ namespace Cinema.Application.UseCases.AuthServices
 
             if (passwordVerificationResult == PasswordVerificationResult.Success)
             {
-                return _tokenService.GenerateJwtToken(user);            }
+                return _tokenService.GenerateJwtToken(user, role);            
+            }
             else
             {
                 throw new UnauthorizedAccessException("Invalid password");

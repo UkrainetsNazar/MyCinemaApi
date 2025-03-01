@@ -24,8 +24,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Security.Claims;
 
 namespace MyCinemaApi;
 
@@ -74,27 +72,30 @@ public class Program
             options.Password.RequiredLength = 6;
             options.Password.RequireNonAlphanumeric = false;
         })
-            .AddEntityFrameworkStores<CinemaDbContext>()
-            .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<CinemaDbContext>();
 
         // Add Authentication + JWT
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = secret,
-                    RoleClaimType = ClaimTypes.Role
-                };
-            });
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-        builder.Services.AddAuthorization();
+        }).AddJwtBearer(options => {
+            options.SaveToken = true;
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+                ValidateAudience = true,
+                ValidAudience = audience,
+                IssuerSigningKey = secret,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
 
         // Logging
         Log.Logger = new LoggerConfiguration()
@@ -163,42 +164,50 @@ public class Program
 
         // Swagger
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
+        builder.Services.AddSwaggerGen(swagger =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Cinema API", Version = "v1" });
-
-            options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
+            //This is to generate the Default UI of Swagger Documentation    
+            swagger.SwaggerDoc("v1", new OpenApiInfo
             {
-                Name = "Token",
-                Type = SecuritySchemeType.ApiKey,
-                In = ParameterLocation.Cookie,
-                Description = "Àâòîðèçàö³ÿ ÷åðåç JWT, ÿêèé çáåð³ãàºòüñÿ â cookie",
+                Version = "v1",
+                Title = "ASP.NET Core Web API"
             });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
+            // To Enable authorization using Swagger (JWT)    
+            swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
-                Reference = new OpenApiReference
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter 'Bearer' [space] and then your valid token.",
+            });
+            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "CookieAuth"
+                    {
+                    new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                    new string[] {}
                 }
-            },
-            new string[] {}
-        }
-    });
+            });
         });
 
-        builder.Services.AddCors(options =>
+        // Authorization and CORS
+        builder.Services.AddCors(options => {
+            options.AddPolicy("MyPolicy",
+                              policy => policy.AllowAnyMethod()
+                              .AllowAnyOrigin()
+                              .AllowAnyHeader());
+        });
+        builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy("AllowAll", builder =>
-            {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
+            options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
         });
 
         var app = builder.Build();

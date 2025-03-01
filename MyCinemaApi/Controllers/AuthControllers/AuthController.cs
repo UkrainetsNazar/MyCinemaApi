@@ -24,7 +24,7 @@ namespace Cinema.Presentation.Controllers.AuthControllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            var token = await _authService.LoginAsync(model.Email!, model.Password!);
+            var token = await _authService.LoginAsync(model.Email!, model.Password!, model.Role);
             HttpContext.Response.Cookies.Append("Token", token, new CookieOptions()
             {
                 HttpOnly = true

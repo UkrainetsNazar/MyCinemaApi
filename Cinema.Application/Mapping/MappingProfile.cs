@@ -75,8 +75,7 @@ namespace Cinema.Application.Mapping
 
             CreateMap<RegisterDto, User>().ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role));
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
         }
     }
 }

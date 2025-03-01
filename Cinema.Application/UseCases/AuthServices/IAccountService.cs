@@ -10,6 +10,6 @@ namespace Cinema.Application.UseCases.AuthServices
     public interface IAccountService
     {
         Task RegisterAsync(RegisterDto model);
-        Task<string> LoginAsync(string email, string password);
+        Task<string> LoginAsync(string email, string password, string role);
     }
 }

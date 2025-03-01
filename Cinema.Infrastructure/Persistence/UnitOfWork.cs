@@ -53,7 +53,8 @@ namespace Cinema.Infrastructure.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public void Dispose() {
+        public void Dispose() 
+        {
             _context.Dispose();
         }
     }

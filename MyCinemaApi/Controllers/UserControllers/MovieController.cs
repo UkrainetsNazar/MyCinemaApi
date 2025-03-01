@@ -7,7 +7,6 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/movie")]
     public class MovieController : ControllerBase

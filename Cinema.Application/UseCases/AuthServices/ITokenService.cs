@@ -4,6 +4,6 @@ namespace Cinema.Application.UseCases.AuthServices
 {
     public interface ITokenService
     {
-        string GenerateJwtToken(User user);
+        string GenerateJwtToken(User user, string role);
     }
 }

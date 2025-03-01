@@ -18,24 +18,25 @@ namespace Cinema.Application.UseCases.AuthServices
             _jwtOptions = jwtOptions.Value;
         }
 
-        public string GenerateJwtToken(User user)
+        public string GenerateJwtToken(User user, string role = "User")
         {
-            var myClaims = new List<Claim>
-        {
-            new Claim("id", user.Id),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
-
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
+            var myClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.UserName!),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, role)
+            };
+
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
-                _jwtOptions.Issuer,
-                _jwtOptions.Audience,
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
                 claims: myClaims,
                 expires: DateTime.Now.Add(_jwtOptions.Expires),
-                signingCredentials: creds);
+                signingCredentials: creds
+                );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

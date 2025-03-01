@@ -1,13 +1,14 @@
 ﻿using Cinema.Application.DTO.TicketDTOs;
 using Cinema.Application.UseCases;
 using Cinema.Infrastructure.ExternalServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
-    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/ticket")]
     public class TicketController : ControllerBase
