@@ -16,5 +16,6 @@ namespace Cinema.Application.DTO.AuthServiceDTOs
         [Required]
         [MinLength(3, ErrorMessage = "Ім'я користувача має містити мінімум 5 символів")]
         public string? UserName { get; set; }
+        public string? Role { get; set; } = "User";
     }
 }

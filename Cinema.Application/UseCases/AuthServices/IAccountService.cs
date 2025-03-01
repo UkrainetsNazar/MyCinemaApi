@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cinema.Application.DTO.AuthServiceDTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Cinema.Application.UseCases.AuthServices
 {
     public interface IAccountService
     {
-        Task RegisterAsync(string email, string userName, string password);
+        Task RegisterAsync(RegisterDto model);
         Task<string> LoginAsync(string email, string password);
     }
 }

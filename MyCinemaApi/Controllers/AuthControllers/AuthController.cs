@@ -17,14 +17,19 @@ namespace Cinema.Presentation.Controllers.AuthControllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
-            await _authService.RegisterAsync(model.Email!, model.UserName!, model.Password!);
-            return NoContent();
+            await _authService.RegisterAsync(model);
+            return Ok("Registration succeed");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             var token = await _authService.LoginAsync(model.Email!, model.Password!);
+            HttpContext.Response.Cookies.Append("Token", token, new CookieOptions()
+            {
+                HttpOnly = true
+            });
+
             return token.Contains("Invalid") ? Unauthorized(token) : Ok(new { Token = token });
         }
     }

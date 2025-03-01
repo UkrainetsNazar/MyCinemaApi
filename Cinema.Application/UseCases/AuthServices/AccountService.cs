@@ -1,4 +1,6 @@
-﻿using Cinema.Application.Interfaces;
+﻿using AutoMapper;
+using Cinema.Application.DTO.AuthServiceDTOs;
+using Cinema.Application.Interfaces;
 using Cinema.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -8,26 +10,24 @@ namespace Cinema.Application.UseCases.AuthServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;
-        public AccountService(IUnitOfWork unitOfWork, ITokenService tokenService) 
+        private readonly IMapper _mapper;
+        public AccountService(IUnitOfWork unitOfWork, ITokenService tokenService, IMapper mapper) 
         {
             _unitOfWork = unitOfWork;
             _tokenService = tokenService;
+            _mapper = mapper;
         }
-        public async Task RegisterAsync(string email, string userName, string password)
+        public async Task RegisterAsync(RegisterDto model)
         {
-            var existingUser = await _unitOfWork.Users.GetUserByEmail(email);
+            var existingUser = await _unitOfWork.Users.GetUserByEmail(model.Email!);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("User with this email already exists");
             }
 
-            var user = new User
-            {
-                Email = email,
-                UserName = userName
-            };
+            var user = _mapper.Map<RegisterDto, User>(model);
 
-            user.PasswordHash = new PasswordHasher<User>().HashPassword(user, password);
+            user.PasswordHash = new PasswordHasher<User>().HashPassword(user, model.Password!);
 
             await _unitOfWork.Users.AddUser(user);
             await _unitOfWork.SaveChangesAsync();

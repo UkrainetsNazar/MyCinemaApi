@@ -22,9 +22,10 @@ namespace Cinema.Application.UseCases.AuthServices
         {
             var myClaims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim("id", user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName!)
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));

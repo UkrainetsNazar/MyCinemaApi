@@ -25,6 +25,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Security.Claims;
 
 namespace MyCinemaApi;
 
@@ -48,17 +49,6 @@ public class Program
         // Localization
         CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
         CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
-
-        // CORS
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll", policy =>
-            {
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
-        });
 
         // Setting up DB
         var useInMemoryDB = builder.Configuration.GetValue<bool>("UseInMemoryDB");
@@ -99,7 +89,8 @@ public class Program
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtOptions.Issuer,
                     ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = secret
+                    IssuerSigningKey = secret,
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
 
@@ -176,33 +167,39 @@ public class Program
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Cinema API", Version = "v1" });
 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
             {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Введіть JWT-токен у форматі: Bearer {token}"
+                Name = "Token",
+                Type = SecuritySchemeType.ApiKey,
+                In = ParameterLocation.Cookie,
+                Description = "Авторизація через JWT, який зберігається в cookie",
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
             {
+                Reference = new OpenApiReference
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    new string[] {}
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "CookieAuth"
                 }
-            });
+            },
+            new string[] {}
+        }
+    });
         });
 
-
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
 
         var app = builder.Build();
 
@@ -219,12 +216,6 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Seed roles
-        using (var scope = app.Services.CreateScope())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            IdentitySeeder.SeedRolesAsync(roleManager).GetAwaiter().GetResult();
-        }
         // Middleware
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseSerilogRequestLogging();
