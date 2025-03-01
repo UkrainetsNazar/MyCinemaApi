@@ -8,7 +8,7 @@ namespace Cinema.Presentation.Controllers.AdminControllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminUsersController : Controller
     {
         private readonly UserManager<User> _userManager;

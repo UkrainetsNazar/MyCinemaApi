@@ -115,16 +115,18 @@ public class Program
         builder.Host.UseSerilog();
 
 
-        // Middleware and controllers
+        // Controllers
         builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
             });
 
-
+        // Caching
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
+
+        // External services
         builder.Services.Configure<TmdbSettings>(builder.Configuration.GetSection("TMDB"));
         builder.Services.AddHttpClient<TmdbService>();
         builder.Services.AddScoped<TmdbService>();
@@ -135,9 +137,11 @@ public class Program
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<UseCaseManager>();
         builder.Services.AddScoped<UserManager<User>>();
         builder.Services.AddScoped<RoleManager<IdentityRole>>();
@@ -155,10 +159,15 @@ public class Program
         builder.Services.AddScoped<BuyTicketHandler>();
         builder.Services.AddScoped<GetUserTicketsHandler>();
 
+        // FluentValidation
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddFluentValidationClientsideAdapters();
         builder.Services.AddValidatorsFromAssemblyContaining<CreateMovieValidator>();
+
+        // AutoMapper
         builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+        // Serilog
         builder.Host.UseSerilog();
 
         // Swagger
@@ -205,15 +214,18 @@ public class Program
 
         app.UseCors("AllowAll");
         app.UseHttpsRedirection();
+
+        // Authentication and Authorization
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Seed roles
         using (var scope = app.Services.CreateScope())
         {
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             IdentitySeeder.SeedRolesAsync(roleManager).GetAwaiter().GetResult();
         }
-
+        // Middleware
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseSerilogRequestLogging();
         app.MapControllers();

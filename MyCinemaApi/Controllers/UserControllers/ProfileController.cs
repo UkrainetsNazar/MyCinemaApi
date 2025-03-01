@@ -39,6 +39,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                var userCheck = User;
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("User ID not found");
