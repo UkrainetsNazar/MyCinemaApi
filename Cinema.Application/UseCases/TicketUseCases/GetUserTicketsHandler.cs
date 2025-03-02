@@ -20,7 +20,7 @@ namespace Cinema.Application.UseCases.TicketUseCases
         {
             var tickets = await _unitOfWork.Tickets.GetTicketsByUserIdAsync(userId);
             if (tickets == null || !tickets.Any())
-                throw new Exception("Квитків не знайдено.");
+                return new List<GetTicketForUserDTO> { };
 
             var ticketDTOs = _mapper.Map<List<GetTicketForUserDTO>>(tickets);
 

@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Cinema.Domain.Entities;
 using Cinema.Application.UseCases.AuthServices;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
