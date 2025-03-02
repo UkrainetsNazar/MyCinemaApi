@@ -13,7 +13,7 @@ namespace Cinema.Presentation.Controllers.UserControllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly UserManager<User> _userManager;

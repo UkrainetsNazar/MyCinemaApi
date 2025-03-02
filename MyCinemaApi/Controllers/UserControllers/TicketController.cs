@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Cinema.Presentation.Controllers.UserControllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     [ApiController]
     [Route("api/ticket")]
     public class TicketController : ControllerBase
