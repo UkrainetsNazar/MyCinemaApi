@@ -1,4 +1,3 @@
-using Cinema.API.Middleware;
 using Cinema.Application.Mapping;
 using Serilog;
 using FluentValidation.AspNetCore;
@@ -24,6 +23,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Cinema.Presentation.Middleware;
 
 namespace MyCinemaApi;
 
@@ -221,12 +221,14 @@ public class Program
         app.UseCors("AllowAll");
         app.UseHttpsRedirection();
 
+        // Middleware
+        app.UseMiddleware<UnauthorizedMiddleware>();
+        app.UseMiddleware<ExceptionMiddleware>();
+
         // Authentication and Authorization
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Middleware
-        app.UseMiddleware<ExceptionMiddleware>();
         app.UseSerilogRequestLogging();
         app.MapControllers();
 

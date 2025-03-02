@@ -1,10 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Cinema.Domain.Exceptions;
 using Newtonsoft.Json;
 
 
-namespace Cinema.API.Middleware
+namespace Cinema.Presentation.Middleware
 {
     public class ExceptionMiddleware
     {
