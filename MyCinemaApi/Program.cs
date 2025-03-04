@@ -129,7 +129,6 @@ public class Program
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<ISeatRepository, SeatRepository>();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         builder.Services.AddScoped<ITokenService, TokenService>();
@@ -221,6 +220,21 @@ public class Program
         app.UseCors("AllowAll");
         app.UseHttpsRedirection();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
+            {
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                RoleInitializer.Initialize(roleManager);
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while seeding the database roles.");
+            }
+        }
+
         // Middleware
         app.UseMiddleware<UnauthorizedMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
@@ -233,5 +247,21 @@ public class Program
         app.MapControllers();
 
         app.Run();
+    }
+}
+
+public static class RoleInitializer
+{
+    public static void Initialize(RoleManager<IdentityRole> roleManager)
+    {
+        string[] roles = { "Admin", "User" };
+
+        foreach (var role in roles)
+        {
+            if (!roleManager.RoleExistsAsync(role).GetAwaiter().GetResult())
+            {
+                roleManager.CreateAsync(new IdentityRole(role)).GetAwaiter().GetResult();
+            }
+        }
     }
 }

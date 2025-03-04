@@ -10,6 +10,6 @@ namespace Cinema.Application.DTO.AuthServiceDTOs
 
         [Required(ErrorMessage = "Пароль обов'язковий")]
         public string? Password { get; set; }
-        public string Role { get; set; } = "User";
+        public string? Role { get; set; }
     }
 }

@@ -8,18 +8,18 @@ namespace Cinema.Application.UseCases.AuthServices
 {
     public class AccountService : IAccountService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
-        public AccountService(IUnitOfWork unitOfWork, ITokenService tokenService, IMapper mapper) 
+        private readonly UserManager<User> _userManager;
+        public AccountService(ITokenService tokenService, IMapper mapper, UserManager<User> userManager) 
         {
-            _unitOfWork = unitOfWork;
             _tokenService = tokenService;
             _mapper = mapper;
+            _userManager = userManager;
         }
         public async Task RegisterAsync(RegisterDto model)
         {
-            var existingUser = await _unitOfWork.Users.GetUserByEmail(model.Email!);
+            var existingUser = await _userManager.FindByEmailAsync(model.Email!);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("User with this email already exists");
@@ -29,17 +29,18 @@ namespace Cinema.Application.UseCases.AuthServices
 
             user.PasswordHash = new PasswordHasher<User>().HashPassword(user, model.Password!);
 
-            await _unitOfWork.Users.AddUser(user);
-            await _unitOfWork.SaveChangesAsync();
+            await _userManager.CreateAsync(user, model.Password!);
         }
         public async Task<string> LoginAsync(string email, string password, string role)
         {
-            var user = await _unitOfWork.Users.GetUserByEmail(email);
+            var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
                 throw new KeyNotFoundException("User not found");
             }
+
+            await _userManager.AddToRoleAsync(user, role);
 
             var passwordVerificationResult = new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash!, password);
 

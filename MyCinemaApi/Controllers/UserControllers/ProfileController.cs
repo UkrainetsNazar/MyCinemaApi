@@ -62,7 +62,8 @@ namespace Cinema.Presentation.Controllers.UserControllers
                 {
                     user.UserName,
                     user.Email,
-                    Tickets = tickets
+                    Tickets = tickets,
+                    Roles = await _userManager.GetRolesAsync(user)
                 };
 
                 _cache.SetData(cacheKey, userProfile, DurationTime);

@@ -13,12 +13,10 @@ namespace Cinema.Presentation.Controllers.AdminControllers
     public class AdminHallController : ControllerBase
     {
         private readonly UseCaseManager _useCaseManager;
-        private readonly ICacheService _cache;
 
-        public AdminHallController(UseCaseManager useCaseManager, ICacheService redisCacheService)
+        public AdminHallController(UseCaseManager useCaseManager)
         {
             _useCaseManager = useCaseManager;
-            _cache = redisCacheService;
         }   
 
         [HttpPost]
